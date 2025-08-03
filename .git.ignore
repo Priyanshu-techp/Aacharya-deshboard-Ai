@@ -1,0 +1,6 @@
+git init
+git add .
+git commit -m "Initial commit - Aacharya Dashboard AI"
+git branch -M main
+git remote add origin https://github.com/Priyanshu-techp/Aacharya-deshboard-Ai.git
+git push -u origin main
