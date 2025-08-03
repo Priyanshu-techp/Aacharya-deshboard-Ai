@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aacharya - Authentication</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: #1c1c1c;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #00bcd4;
+    }
+
+    .input-box {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .input-box input {
+      width: 100%;
+      padding: 12px 40px 12px 12px;
+      border: none;
+      border-radius: 10px;
+      background: #333;
+      color: #fff;
+    }
+
+    .input-box label {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 0.9rem;
+      pointer-events: none;
+      color: #aaa;
+      transition: 0.3s;
+    }
+
+    .input-box input:focus + label,
+    .input-box input:valid + label {
+      top: -8px;
+      left: 10px;
+      background: #1c1c1c;
+      padding: 0 5px;
+      font-size: 0.75rem;
+      color: #00bcd4;
+    }
+
+    .input-box i {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      color: #777;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background: #00bcd4;
+      color: #000;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+
+    .links {
+      text-align: center;
+    }
+
+    .links a {
+      color: #00bcd4;
+      text-decoration: none;
+      display: block;
+      margin: 4px 0;
+      cursor: pointer;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 0.75rem;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="form-title"><h2>Login</h2></div>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm" class="form-section active">
+      <div class="input-box">
+        <input type="email" id="loginEmail" required>
+        <label for="loginEmail">Email</label>
+        <i class="uil uil-envelope"></i>
+      </div>
+      <div class="input-box">
+        <input type="password" id="loginPassword" required>
+        <label for="loginPassword">Password</label>
+        <i class="uil uil-lock"></i>
+      </div>
+      <button type="submit" class="btn">Login</button>
+      <div class="links">
+        <a onclick="showSection('signup')">Create Account</a>
+        <a onclick="showSection('forgot')">Forgot Password</a>
+        <a onclick="showSection('delete')">Delete Account</a>
+      </div>
+    </form>
+
+    <!-- SIGNUP FORM -->
+    <form id="signupForm" class="form-section">
+      <div class="input-box">
+        <input type="text" id="signupName" required>
+        <label for="signupName">Full Name</label>
+        <i class="uil uil-user"></i>
+      </div>
+      <div class="input-box">
+        <input type="email" id="signupEmail" required>
+        <label for="signupEmail">Email</label>
+        <i class="uil uil-envelope"></i>
+      </div>
+      <div class="input-box">
+        <input type="password" id="signupPassword" required>
+        <label for="signupPassword">Password</label>
+        <i class="uil uil-lock"></i>
+      </div>
+      <div class="input-box">
+        <input type="password" id="signupConfirm" required>
+        <label for="signupConfirm">Confirm Password</label>
+        <i class="uil uil-lock"></i>
+      </div>
+      <p class="error-message" id="signupError" style="display:none;"></p>
+      <button type="submit" class="btn">Signup</button>
+      <div class="links">
+        <a onclick="showSection('login')">Already have an account? Login</a>
+      </div>
+    </form>
+
+    <!-- FORGOT PASSWORD -->
+    <form id="forgotForm" class="form-section">
+      <div class="input-box">
+        <input type="email" id="forgotEmail" required>
+        <label for="forgotEmail">Email</label>
+        <i class="uil uil-envelope"></i>
+      </div>
+      <button type="submit" class="btn">Send Reset Link</button>
+      <div class="links">
+        <a onclick="showSection('login')">Back to Login</a>
+      </div>
+    </form>
+
+    <!-- DELETE ACCOUNT -->
+    <form id="deleteForm" class="form-section">
+      <div class="input-box">
+        <input type="email" id="deleteEmail" required>
+        <label for="deleteEmail">Email</label>
+        <i class="uil uil-envelope"></i>
+      </div>
+      <div class="input-box">
+        <input type="password" id="deletePassword" required>
+        <label for="deletePassword">Password</label>
+        <i class="uil uil-lock"></i>
+      </div>
+      <button type="submit" class="btn">Delete Account</button>
+      <div class="links">
+        <a onclick="showSection('login')">Back to Login</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function showSection(section) {
+      const sections = {
+        login: "Login",
+        signup: "Signup",
+        forgot: "Forgot Password",
+        delete: "Delete Account"
+      };
+
+      document.getElementById("form-title").innerHTML = `<h2>${sections[section]}</h2>`;
+      document.querySelectorAll(".form-section").forEach((form) => {
+        form.classList.remove("active");
+      });
+      document.getElementById(section + "Form").classList.add("active");
+    }
+
+    // Login
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append("action", "login");
+      formData.append("email", document.getElementById("loginEmail").value);
+      formData.append("password", document.getElementById("loginPassword").value);
+
+      const res = await fetch("http://localhost/aacharya_backend.php", { method: "POST", body: formData });
+      const data = await res.json();
+      alert(data.message);
+    });
+
+    // Signup
+    document.getElementById("signupForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const pass = document.getElementById("signupPassword").value;
+      const confirm = document.getElementById("signupConfirm").value;
+      const error = document.getElementById("signupError");
+
+      if (pass !== confirm) {
+        error.textContent = "Passwords do not match";
+        error.style.display = "block";
+        return;
+      } else {
+        error.style.display = "none";
+      }
+
+      const formData = new FormData();
+      formData.append("action", "signup");
+      formData.append("full_name", document.getElementById("signupName").value);
+      formData.append("email", document.getElementById("signupEmail").value);
+      formData.append("password", pass);
+
+      const res = await fetch("http://localhost/aacharya_backend.php", { method: "POST", body: formData });
+      const data = await res.json();
+      alert(data.message);
+    });
+
+    // Forgot Password
+    document.getElementById("forgotForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append("action", "forgot");
+      formData.append("email", document.getElementById("forgotEmail").value);
+
+      const res = await fetch("http://localhost/aacharya_backend.php", { method: "POST", body: formData });
+      const data = await res.json();
+      alert(data.message);
+    });
+
+    // Delete Account
+    document.getElementById("deleteForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append("action", "delete");
+      formData.append("email", document.getElementById("deleteEmail").value);
+      formData.append("password", document.getElementById("deletePassword").value);
+
+      const res = await fetch("http://localhost/aacharya_backend.php", { method: "POST", body: formData });
+      const data = await res.json();
+      alert(data.message);
+    });
+  </script>
+</body>
+</html>

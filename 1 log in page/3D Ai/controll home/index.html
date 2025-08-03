@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Arduino Voice + Serial Control</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Arduino Controller</h1>
+
+  <input type="text" id="command" placeholder="Type or speak command here">
+  <button onclick="sendCommand()">Send</button>
+  <button onclick="connectToArduino()">Connect to Arduino</button>
+  <button onclick="startListening()">🎤 Speak</button>
+
+  <p id="status">Status: Not Connected</p>
+
+  <script src="script.js"></script>
+</body>
+</html>

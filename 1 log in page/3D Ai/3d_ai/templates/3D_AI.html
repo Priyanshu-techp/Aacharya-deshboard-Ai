@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aacharya AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/3d_AI.css">
+    <style>
+        .mic-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .mic-btn.active {
+            background: linear-gradient(135deg, #ff3333, #cc0000);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(255, 51, 51, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 51, 51, 0);
+            }
+        }
+
+        .listening-indicator {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 20px;
+            font-size: 16px;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 4px solid #ccc;
+            border-top: 4px solid #25D366;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .voice-result {
+            background: #fff;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hamburger-menu">
+        <div class="hamburger-icon" id="hamburgerIcon">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+        <nav class="nav-container" id="navContainer">
+            <a href="/1 log in page/3D Ai/talk ai/index.html">Chat with Aacharya</a>
+            <a href="/1 log in page/3D Ai/health_care/templates/index.html">Health Care</a>
+            <a href="/1 log in page/3D Ai/controll home/index.html" onclick="runAI('home-control')">Control Home Appliances</a>
+            <a href="/1 log in page/3D Ai/deep fake image detection/templates/index.html" onclick="runAI('deepfake-detection')">Deep Fake
+                Detection</a>
+            <a href="/1 log in page/3D Ai/fake news detecton/templates/fake.html" onclick="runAI('fake-news')">Fake News Detection</a>
+        </nav>
+        <div class="main">
+            <div class="page">
+                <canvas></canvas>
+                <div id="aiResult">Press the mic and speak to Aacharya...</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="mic-btn" id="micBtn" title="Click and speak">
+        <i class="fas fa-microphone" id="micIcon"></i>
+    </button>
+
+    <div class="listening-indicator" id="listeningIndicator">
+        <i class="fas fa-circle" style="color: #ff3333; margin-right: 5px;"></i> Listening...
+    </div>
+    <script>
+        const micBtn = document.getElementById('micBtn');
+        const micIcon = document.getElementById('micIcon');
+        const aiResult = document.getElementById('aiResult');
+        const listeningIndicator = document.getElementById('listeningIndicator');
+
+        // Hamburger menu functionality
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+        const navContainer = document.getElementById('navContainer');
+
+        hamburgerIcon.addEventListener('click', () => {
+            navContainer.classList.toggle('active');
+            hamburgerIcon.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navContainer.contains(e.target) && !hamburgerIcon.contains(e.target)) {
+                navContainer.classList.remove('active');
+                hamburgerIcon.classList.remove('active');
+            }
+        });
+
+
+        let recognition;
+        let isListening = false;
+
+        function initializeSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Sorry, your browser does not support speech recognition.");
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                isListening = true;
+                micBtn.classList.add('active');
+                micIcon.classList.remove('fa-microphone');
+                micIcon.classList.add('fa-stop');
+                listeningIndicator.style.display = 'block';
+                aiResult.innerHTML = "🎧 Listening...";
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                micBtn.classList.remove('active');
+                micIcon.classList.remove('fa-stop');
+                micIcon.classList.add('fa-microphone');
+                listeningIndicator.style.display = 'none';
+            };
+
+            recognition.onerror = (event) => {
+                aiResult.innerHTML = "Error: " + event.error;
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                sendToAI(transcript);
+            };
+        }
+
+        async function sendToAI(query) {
+            aiResult.innerHTML = "<div class='loading-state'><div class='spinner'></div><p>Processing...</p></div>";
+            try {
+                const response = await fetch('http://127.0.0.1:5006/api/process-voice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+
+                const data = await response.json();  // parse the JSON response
+
+                if (data.status === 'success') {
+                    aiResult.innerHTML = `
+                <div class="voice-result">
+                    <p><strong>You:</strong> ${data.query}</p>
+                    <p><strong>Aacharya:</strong> ${data.response}</p>
+                </div>
+            `;
+                    const speak = new SpeechSynthesisUtterance(data.response);
+                    window.speechSynthesis.speak(speak);
+                } else {
+                    aiResult.innerHTML = "AI Error: " + data.message;
+                }
+
+            } catch (error) {
+                aiResult.innerHTML = "Fetch Error: " + error.message;
+            }
+        }
+
+
+        function startVoiceAssistant() {
+            if (!recognition) return;
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        micBtn.addEventListener('click', startVoiceAssistant);
+        window.onload = initializeSpeechRecognition;
+    </script>
+    <script src="../static/js/3D_AI.js"></script>
+</body>
+
+</html>
